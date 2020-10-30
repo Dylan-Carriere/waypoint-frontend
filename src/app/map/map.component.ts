@@ -2,15 +2,29 @@ import { Component, OnInit } from '@angular/core';
 import { environment } from '../../environments/environment';
 import * as mapboxgl from 'mapbox-gl';
 const toulouseAirportGeofence = require('./toulouseAirport.json');
-import Amplify, {Auth} from "aws-amplify";
+import Amplify, {Auth, API} from "aws-amplify";
 
 
 Amplify.configure( {
   Auth: {
-    identityPoolId: 'eu-west-1:b05841f4-5425-4356-807d-f490ad3dbdad',
+    identityPoolId: 'eu-west-1:add24101-91d6-413b-b189-d01a7a1661cc',
     region: 'eu-west-1',
-    userPoolId: 'eu-west-1_9aZYRGztL',
-    userPoolWebClientId: '2s0nj0cqqnc2jrftp8lv9mhgs8'
+    userPoolId: 'eu-west-1_2qNLAdVLc',
+    userPoolWebClientId: 'hvqm14s5d4r96pv0lgh4e2bhp'
+  },
+  API: {
+    endpoints: [
+      {
+        name: "dev-serverless-lab",
+        endpoint: "https://cwoc30oiga.execute-api.eu-west-1.amazonaws.com/dev",
+        custom_header: async () => { 
+          return { Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}` }
+          // Alternatively, with Cognito User Pools use this:
+          // return { Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}` }
+          // return { Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}` }
+        }
+      }
+    ]
   }
 });
 
@@ -33,6 +47,7 @@ export class MapComponent implements OnInit {
   ngOnInit(): void {
 
     this.getJwtToken();
+    this.getMap();
 
     this.map = new mapboxgl.Map({
         accessToken: environment.mapbox.accessToken,
@@ -77,6 +92,18 @@ export class MapComponent implements OnInit {
     const userToken = (await Auth.currentSession()).getIdToken().getJwtToken();
     
     console.log(userToken);
+  }
+
+  async getMap() { 
+    const apiName = 'dev-serverless-lab';
+    const path = '/map';
+    const myInit = { 
+      headers: { 
+        Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`,
+      },
+    };
+
+    console.log(await API.get(apiName, path, myInit));
   }
 
 }
