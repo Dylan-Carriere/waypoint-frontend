@@ -6,6 +6,9 @@ import { MapComponent } from './map/map.component';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 
+/* import AmplifyUIAngularModule  */
+import { AmplifyUIAngularModule } from '@aws-amplify/ui-angular';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -14,7 +17,8 @@ import { FooterComponent } from './footer/footer.component';
     FooterComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    AmplifyUIAngularModule
   ],
   providers: [],
   bootstrap: [AppComponent]

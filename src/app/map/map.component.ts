@@ -2,7 +2,20 @@ import { Component, OnInit } from '@angular/core';
 import { environment } from '../../environments/environment';
 import * as mapboxgl from 'mapbox-gl';
 const toulouseAirportGeofence = require('./toulouseAirport.json');
-const pointOut = require('./pointOut.json');
+import Amplify, {Auth} from "aws-amplify";
+
+
+Amplify.configure( {
+  Auth: {
+    identityPoolId: 'eu-west-1:b05841f4-5425-4356-807d-f490ad3dbdad',
+    region: 'eu-west-1',
+    userPoolId: 'eu-west-1_9aZYRGztL',
+    userPoolWebClientId: '2s0nj0cqqnc2jrftp8lv9mhgs8'
+  }
+});
+
+// You can get the current config object
+const currentConfig = Auth.configure();
 
 @Component({
   selector: 'app-map',
@@ -18,6 +31,8 @@ export class MapComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+
+    this.getJwtToken();
 
     this.map = new mapboxgl.Map({
         accessToken: environment.mapbox.accessToken,
@@ -50,11 +65,18 @@ export class MapComponent implements OnInit {
         'layout': {},
         'paint': {
           'fill-color': '#4682B4',
-          'fill-opacity': 0.7
+          'fill-opacity': 0.45
           }
         });
       });
       
+  }
+
+  async getJwtToken(){
+
+    const userToken = (await Auth.currentSession()).getIdToken().getJwtToken();
+    
+    console.log(userToken);
   }
 
 }
